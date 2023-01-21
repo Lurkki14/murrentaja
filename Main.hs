@@ -4,6 +4,7 @@ import Data.Maybe
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 
+-- Being able to parse CV | V at the beginning of a word does not mean short syllable, hence the name
 data MaybeShort = CV T.Text | V T.Text deriving (Show) 
 -- this kind of syllable is applicable for common gemination
 data LongOpen = CVV T.Text | CDD T.Text deriving (Show) 
@@ -22,6 +23,15 @@ diphthongs = [ "ei", "öi", "äi", "oi", "ai", "ey", "öy",
 consonants = [ "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x" ] :: [T.Text]
 
 vowels = [ "a", "e", "i", "o", "u", "y", "ä", "ö" ] :: [T.Text]
+
+applyCommonGemination :: CommonGeminable -> T.Text
+applyCommonGemination (CommonGeminable first second tail) =
+  T.append (firstT first) $ T.append secondGeminated tail where
+    firstT (CV x) = x
+    firstT (V x) = x
+    secondGeminated = T.append (T.replicate 2 $ T.take 1 (secondT second)) (T.drop 1 $ secondT second)
+    secondT (CVV x) = x
+    secondT (CDD x) = x
 
 parseMaybeShort :: T.Text -> Maybe MaybeShort
 parseMaybeShort x
