@@ -14,6 +14,18 @@ data CommonGeminable = CommonGeminable {
   second :: LongOpen,
   tail :: T.Text
 }
+type LangWord = T.Text -- smart constructor could be useful
+
+class ToText a where
+  toText :: a -> T.Text
+
+instance ToText MaybeShort where
+  toText (CV x) = x
+  toText (V x) = x
+
+instance ToText LongOpen where
+  toText (CVV x) = x
+  toText (CDD x) = x
 
 -- Other vowel combinations aren't considered diphthongs and will break a syllable (eg. ta-e)
 -- TODO: replace these with data structures that are more efficient to search
@@ -26,12 +38,9 @@ vowels = [ "a", "e", "i", "o", "u", "y", "ä", "ö" ] :: [T.Text]
 
 applyCommonGemination :: CommonGeminable -> T.Text
 applyCommonGemination (CommonGeminable first second tail) =
-  T.append (firstT first) $ T.append secondGeminated tail where
-    firstT (CV x) = x
-    firstT (V x) = x
-    secondGeminated = T.append (T.replicate 2 $ T.take 1 (secondT second)) (T.drop 1 $ secondT second)
-    secondT (CVV x) = x
-    secondT (CDD x) = x
+  T.append (toText first) $ T.append secondGeminated tail where
+    secondGeminated = T.append (T.replicate 2 $ T.take 1 (toText second)) (T.drop 1 $ toText second)
+
 
 parseMaybeShort :: T.Text -> Maybe MaybeShort
 parseMaybeShort x
