@@ -51,8 +51,8 @@ parseLongOpen x
   | otherwise = parsedDD where
   consonantCandidate = T.take 1 x
   vvddCandidate = T.drop 1 $ T.take 3 x
-  parsedVV = parseLongVowel vvddCandidate >>= \vv -> Just $ CVV $ T.append consonantCandidate vv
-  parsedDD = parseDiphthong vvddCandidate >>= \dd -> Just $ CDD $ T.append consonantCandidate dd
+  parsedVV = fmap (CVV . T.append consonantCandidate) (parseLongVowel vvddCandidate)
+  parsedDD = fmap (CDD . T.append consonantCandidate) (parseDiphthong vvddCandidate)
 
 -- For "general gemination" we need to know if:
 -- 1. The preceding syllable is short (CV or V)
