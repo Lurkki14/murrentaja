@@ -97,9 +97,9 @@ parseLongVowel x
 maybeShort = CV "ak"
 longOpen = CVV "taa"
 
+commonGeminable = CommonGeminable (V "a") (CVV "jaa") ""
+
 main = do
+  T.IO.putStrLn "Input a word to apply common gemination to (EOF to continue): "
   input <- T.IO.getContents
-  --T.IO.putStrLn $ fromMaybe "Not a diphthong" (parseDiphthong input)
-  --T.IO.putStrLn $ fromMaybe maybeShort (parseMaybeShort "ta")
-  print $ fromMaybe maybeShort (parseMaybeShort "ta")
-  print $ fromMaybe longOpen (parseLongOpen "sau")
+  T.IO.putStrLn $ fromMaybe "Not applicable" $ applyCommonGemination <$> parseCommonGeminable input
