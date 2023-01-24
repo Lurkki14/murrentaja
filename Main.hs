@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+import Control.Applicative
 import Data.Maybe
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
@@ -41,12 +42,10 @@ applyCommonGemination (CommonGeminable first second tail) =
   T.append (toText first) $ T.append secondGeminated tail where
     secondGeminated = T.append (T.replicate 2 $ T.take 1 (toText second)) (T.drop 1 $ toText second)
 
--- liftA2 :: (MaybeShort -> LongOpen -> CommonGeminable) -> Maybe MaybeShort -> Maybe LongOpen -> Maybe CommonGeminable
 parseCommonGeminable :: LangWord -> Maybe CommonGeminable
 parseCommonGeminable word =
   liftA2
   (\ms lo -> CommonGeminable ms lo (dropPrefix (T.append (toText ms) (toText lo)) word)) maybeShort longOpen where
-  --parsedMaybeShort (parseLongOpen $ fmap (\ms -> dropPrefix (toText ms) word) parsedMaybeShort) where
     candidate = T.take 5 word
     maybeShort :: Maybe MaybeShort
     maybeShort = parseMaybeShort candidate
