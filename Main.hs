@@ -14,7 +14,7 @@ data CommonGeminable = CommonGeminable {
   first :: MaybeShort,
   second :: LongOpen,
   tail :: T.Text
-}
+} deriving (Show)
 type LangWord = T.Text -- smart constructor could be useful
 
 class ToText a where
