@@ -95,6 +95,6 @@ parseLongVowel x
   candidate = T.take 2 x
 
 main = do
-  T.IO.putStrLn "Input a word to apply common gemination to (EOF to continue): "
-  input <- T.IO.getContents
+  T.IO.putStrLn "Input a word to apply common gemination to (Enter to continue): "
+  input <- T.IO.getLine
   T.IO.putStrLn $ fromMaybe "Not applicable" $ applyCommonGemination <$> parseCommonGeminable input
