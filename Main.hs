@@ -54,9 +54,7 @@ parseCommonGeminable word =
     dropPrefix prefix = T.drop (T.length prefix)
 
 parseMaybeShort :: T.Text -> Maybe MaybeShort
-parseMaybeShort x
-  | isJust $ parseV x = parseV x
-  | otherwise = parseCV x where
+parseMaybeShort x = parseV x <|> parseCV x where
   parseV x
     | elem (T.take 1 x) vowels = Just $ V $ T.take 1 x
     | otherwise = Nothing
@@ -67,8 +65,7 @@ parseMaybeShort x
 parseLongOpen :: T.Text -> Maybe LongOpen
 parseLongOpen x
   | not $ elem consonantCandidate consonants = Nothing
-  | isJust parsedVV = parsedVV
-  | otherwise = parsedDD where
+  | otherwise = parsedVV <|> parsedDD where
   consonantCandidate = T.take 1 x
   vvddCandidate = T.drop 1 $ T.take 3 x
   parsedVV = fmap (CVV . T.append consonantCandidate) (parseLongVowel vvddCandidate)
