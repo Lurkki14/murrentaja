@@ -82,7 +82,7 @@ parseDiphthong x
   | T.length candidate /= 2 = Nothing
   | not $ elem candidate diphthongs = Nothing
   | elem candidate diphthongs = Just x
-  where candidate = T.take 2 x -- Text.take is O(n) so don't waste time calculating the length of a big string
+  where candidate = T.take 2 x -- Text.length is O(n) so don't waste time calculating the length of a big string
 
 parseLongVowel :: T.Text -> Maybe T.Text
 parseLongVowel x
