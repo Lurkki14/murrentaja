@@ -91,6 +91,15 @@ parseLongVowel x
   bothSame x = T.take 1 x == T.drop 1 x
   candidate = T.take 2 x
 
+commonGeminateText :: T.Text -> T.Text
+commonGeminateText text =
+  foldr (\(orig, gem) acc -> T.replace orig gem acc) text $ replacements text
+
+replacements :: T.Text -> [(T.Text, T.Text)]
+replacements text = [ (orig, gem) | (orig, Just gem) <- zip words geminated ] where
+  words = T.words text
+  geminated = fmap applyCommonGemination . parseCommonGeminable <$> words
+
 main = do
   T.IO.putStrLn "Input a word to apply common gemination to (Enter to continue): "
   input <- T.IO.getLine
