@@ -4,6 +4,13 @@ import Control.Applicative
 import Data.Maybe
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
+import Options.Applicative
+
+-- Program options
+data Input =
+  File FilePath |
+  StdIn |
+  Interactive deriving (Show)
 
 -- Being able to parse CV | V at the beginning of a word does not mean short syllable, hence the name
 data MaybeShort = CV T.Text | V T.Text deriving (Show) 
@@ -36,6 +43,21 @@ diphthongs = [ "ei", "öi", "äi", "oi", "ai", "ey", "öy",
 consonants = [ "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x" ] :: [T.Text]
 
 vowels = [ "a", "e", "i", "o", "u", "y", "ä", "ö" ] :: [T.Text]
+
+input :: Parser Input
+input = file <|> stdIn <|> interactive where
+  file = File <$> strOption (
+    long "file" <>
+    short 'f' )
+  stdIn = flag' StdIn (
+    long "stdin" <>
+    short 's' )
+  interactive = flag' Interactive (
+    long "interactive" <>
+    short 'i' )
+
+options :: ParserInfo Input
+options = info (input <**> helper) mempty
 
 applyCommonGemination :: CommonGeminable -> T.Text
 applyCommonGemination (CommonGeminable first second tail) =
@@ -100,7 +122,15 @@ replacements text = [ (orig, gem) | (orig, Just gem) <- zip words geminated ] wh
   words = T.words text
   geminated = fmap applyCommonGemination . parseCommonGeminable <$> words
 
-main = do
-  T.IO.putStrLn "Input a word to apply common gemination to (Enter to continue): "
+interactiveLoop :: IO ()
+interactiveLoop = do
   input <- T.IO.getLine
-  T.IO.putStrLn $ fromMaybe "Not applicable" $ applyCommonGemination <$> parseCommonGeminable input
+  T.IO.putStrLn $ "-> " <> commonGeminateText input
+  interactiveLoop
+
+main = do
+  options <- execParser options
+  doMain options where
+    doMain Interactive = T.IO.putStrLn "Enter a line of text: " >> interactiveLoop
+    doMain StdIn = pure () -- TODO: do something :D
+    doMain (File filePath) = pure ()
