@@ -123,10 +123,8 @@ replacements text = [ (orig, gem) | (orig, Just gem) <- zip words geminated ] wh
   geminated = fmap applyCommonGemination . parseCommonGeminable <$> words
 
 interactiveLoop :: IO ()
-interactiveLoop = do
-  input <- T.IO.getLine
-  T.IO.putStrLn $ "-> " <> commonGeminateText input
-  interactiveLoop
+interactiveLoop =
+  T.IO.getLine >>= T.IO.putStrLn . ("-> " <>) . commonGeminateText >> interactiveLoop
 
 main = do
   options <- execParser options
