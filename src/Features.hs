@@ -25,7 +25,10 @@ vowels = [ 'a', 'e', 'i', 'u', 'o', 'y', 'ä', 'ö' ] :: [Char]
 epenthesisTriggers = [ "lp", "lk", "lm", "lv", "nh" ] :: [Text]
 
 applyEpenthesis :: Text -> Maybe Text
-applyEpenthesis word = Just $ go "" word where
+applyEpenthesis word
+  | epenthesized == word = Nothing
+  | otherwise = Just epenthesized where
+  epenthesized = go "" word
   go :: Text -> Text -> Text
   go acc "" = acc
   go acc text =
