@@ -32,7 +32,7 @@ applyEpenthesis word
   go :: Text -> Text -> Text
   go acc "" = acc
   go acc text =
-    -- go "j" "alka" needs to be cut by 3
+    -- 'text' in go "j" "alka" needs to be cut by 3
     -- go "jalak" "a" by 1
     go (append acc $ fst $ nextAcc text) (T.drop (snd $ nextAcc text) text)
   nextAcc :: Text -> (Text, Int)
