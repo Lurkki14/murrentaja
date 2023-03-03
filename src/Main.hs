@@ -9,8 +9,6 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import Options.Applicative
 
-import Features
-
 -- Program options
 data Input =
   File FilePath |
@@ -65,9 +63,6 @@ diphthongs = [ "ei", "öi", "äi", "oi", "ai", "ey", "öy",
 consonants = [ "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x" ] :: [T.Text]
 
 vowels = [ "a", "e", "i", "o", "u", "y", "ä", "ö" ] :: [T.Text]
-vowelsChar = [ 'a', 'e', 'i', 'o', 'u', 'y', 'ä', 'ö' ] :: [T.Char]
-
-epenthesisTriggers = [ "lp", "lk", "lm", "lv", "nh" ] :: [T.Text]
 
 input :: Parser Input
 input = file <|> stdIn <|> interactive where
@@ -83,20 +78,6 @@ input = file <|> stdIn <|> interactive where
 
 options :: ParserInfo Input
 options = info (input <**> helper) mempty
-
--- TODO: breaks when there are multiple epentheses to be applied
-applyEpenthesis :: LangWord -> Maybe T.Text
-applyEpenthesis word = Just $ go "" word where
-  -- TODO: Make types for vowels and epenthesis triggers since this is quite hard to understand
-  go :: T.Text -> T.Text -> T.Text
-  go acc text = 
-    case T.uncons text of
-      (Just (char, next)) -> if elem char vowelsChar && elem (T.take 2 next) epenthesisTriggers
-                             then go (T.append acc $ doEpenthesis char next) $ T.drop 3 next
-                             else go (T.append acc $ T.singleton char) next -- TODO: seek to next vowel
-      Nothing -> acc
-  doEpenthesis char fromTrigger =
-    T.singleton char `T.append` T.take 1 fromTrigger `T.append` T.singleton char `T.append` T.drop 1 fromTrigger
 
 applyCommonGemination :: CommonGeminable -> T.Text
 applyCommonGemination (CommonGeminable first second tail) =
