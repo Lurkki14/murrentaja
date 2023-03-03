@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Features where
+module Epenthesis where
 
 import Data.Char
 import Data.Maybe
