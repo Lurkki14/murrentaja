@@ -56,7 +56,7 @@ thread = foldr (.) id
 transform :: Text -> Maybe Text
 transform word
   | transformed == word = Nothing
-  | otherwise = Just word where
+  | otherwise = Just transformed where
     transformed = thread transformationsPlain word
 
 -- TODO: do other transformations here as well
