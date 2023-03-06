@@ -2,6 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Control.Applicative
+import Control.Monad
 import Data.Char as T
 import Data.Maybe
 import Data.Text.Encoding
@@ -11,6 +12,7 @@ import qualified Data.Text.IO as T.IO
 import Options.Applicative
 
 import Gemination
+import Epenthesis
 
 -- Program options
 data Input =
@@ -42,8 +44,23 @@ input = file <|> stdIn <|> interactive where
 options :: ParserInfo Input
 options = info (input <**> helper) mempty
 
+transformations = [ commonGeminated, applyEpenthesis ] :: [Text -> Maybe Text]
+
+transformationsPlain = fmap (ap fromMaybe) transformations :: [Text -> Text]
+
+thread :: Foldable t => t (a -> a) -> a -> a
+thread = foldr (.) id
+
+-- Return Maybe Text so we don't try to replace every word,
+-- whether they've been modified or not
+transform :: Text -> Maybe Text
+transform word
+  | transformed == word = Nothing
+  | otherwise = Just word where
+    transformed = thread transformationsPlain word
+
 -- TODO: do other transformations here as well
-replacements :: T.Text -> [(T.Text, T.Text)]
+replacements :: Text -> [(Text, Text)]
 replacements text = [ (orig, gem) | (orig, Just gem) <- zip words geminated ] where
   words = T.words text
   geminated = fmap applyCommonGemination . parseCommonGeminable <$> words
