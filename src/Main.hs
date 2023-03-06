@@ -59,24 +59,22 @@ transform word
   | otherwise = Just transformed where
     transformed = thread transformationsPlain word
 
--- TODO: do other transformations here as well
 replacements :: Text -> [(Text, Text)]
-replacements text = [ (orig, gem) | (orig, Just gem) <- zip words geminated ] where
+replacements text = [ (orig, mod) | (orig, Just mod) <- zip words transformed ] where
   words = T.words text
-  geminated = fmap applyCommonGemination . parseCommonGeminable <$> words
+  transformed = fmap transform words
 
--- TODO: rename to fit the goal above
-commonGeminateText :: Text -> Text
-commonGeminateText text =
+transformText :: Text -> Text
+transformText text =
   foldr (\(orig, gem) acc -> replace orig gem acc) text $ replacements text
 
 interactiveLoop :: IO ()
 interactiveLoop =
-  T.IO.getLine >>= T.IO.putStrLn . ("-> " <>) . commonGeminateText >> interactiveLoop
+  T.IO.getLine >>= T.IO.putStrLn . ("-> " <>) . transformText >> interactiveLoop
 
 main = do
   options <- execParser options
   doMain options where
     doMain Interactive = T.IO.putStrLn "Enter a line of text: " >> interactiveLoop
     doMain StdIn = pure () -- TODO: do something :D
-    doMain (File filePath) = T.IO.readFile filePath >>= T.IO.putStr . commonGeminateText
+    doMain (File filePath) = T.IO.readFile filePath >>= T.IO.putStr . transformText
