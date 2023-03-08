@@ -1,4 +1,5 @@
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 import Control.Applicative
@@ -6,10 +7,11 @@ import Control.Monad
 import Data.Char as T
 import Data.Maybe
 import Data.Text.Encoding
-import Data.Text hiding (foldr, zip)
+import Data.Text hiding (foldr, zip, words)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import Options.Applicative
+import Text.Read
 
 import Gemination
 import Epenthesis
@@ -19,6 +21,23 @@ data Input =
   File FilePath |
   StdIn |
   Interactive deriving (Show)
+
+data Feature =
+  CommonGemination |
+  SpecialGemination |
+  Epenthesis deriving (Read, Show)
+
+data Options = Options {
+  inputOpt :: Input,
+  featuresOpt :: [Feature]
+} deriving (Show)
+
+data FeatureInfo = FeatureInfo {
+  feature :: Feature,
+  function :: Text -> Maybe Text,
+  conflicts :: [Feature],
+  supersetOf :: [Feature]
+}
 
 -- Language features
 -- Associate all these with LangWord -> Maybe Text (Maybe because replacing is expensive)
@@ -41,8 +60,22 @@ input = file <|> stdIn <|> interactive where
     long "interactive" <>
     short 'i' )
 
-options :: ParserInfo Input
-options = info (input <**> helper) mempty
+features :: Parser [Feature]
+features = option parseFeatures (
+  long "features" <>
+  short 'F' ) where
+    parseFeatures :: ReadM [Feature]
+    parseFeatures = eitherReader readEither
+
+readFeatures :: String -> [Maybe Feature]
+readFeatures string = readMaybe <$> words string
+
+
+optionsP :: Parser Options
+optionsP = Options <$> input <*> features
+
+options :: ParserInfo Options
+options = info (optionsP <**> helper) mempty
 
 transformations = [ commonGeminated, applyEpenthesis ] :: [Text -> Maybe Text]
 
@@ -74,7 +107,7 @@ interactiveLoop =
 
 main = do
   options <- execParser options
-  doMain options where
+  doMain options.inputOpt where
     doMain Interactive = T.IO.putStrLn "Enter a line of text: " >> interactiveLoop
     doMain StdIn = pure () -- TODO: do something :D
     doMain (File filePath) = T.IO.readFile filePath >>= T.IO.putStr . transformText
