@@ -99,7 +99,7 @@ replacements text = [ (orig, mod) | (orig, Just mod) <- zip words transformed ] 
 
 transformText :: Text -> Text
 transformText text =
-  foldr (\(orig, gem) acc -> replace orig gem acc) text $ replacements text
+  foldr (\(orig, mod) acc -> replace orig mod acc) text $ replacements text
 
 interactiveLoop :: IO ()
 interactiveLoop =
