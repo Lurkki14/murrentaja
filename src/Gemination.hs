@@ -40,6 +40,9 @@ consonants = [ "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", 
 
 vowels = [ "a", "e", "i", "o", "u", "y", "ä", "ö" ] :: [Text]
 
+commonGeminated :: LangWord -> Maybe Text
+commonGeminated word = applyCommonGemination <$> parseCommonGeminable word
+
 applyCommonGemination :: CommonGeminable -> Text
 applyCommonGemination (CommonGeminable first second tail) =
   append (toText first) $ append secondGeminated tail where
