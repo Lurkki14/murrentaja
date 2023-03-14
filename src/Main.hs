@@ -1,4 +1,5 @@
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -38,6 +39,8 @@ data FeatureInfo = FeatureInfo {
   conflicts :: [Feature],
   supersetOf :: [Feature]
 }
+
+type Transformation = (Text -> Text)
 
 -- Language features
 -- Associate all these with LangWord -> Maybe Text (Maybe because replacing is expensive)
@@ -86,28 +89,43 @@ thread = foldr (.) id
 
 -- Return Maybe Text so we don't try to replace every word,
 -- whether they've been modified or not
-transform :: Text -> Maybe Text
-transform word
+transform :: [Transformation] -> Text -> Maybe Text
+transform fs word
   | transformed == word = Nothing
   | otherwise = Just transformed where
-    transformed = thread transformationsPlain word
+    transformed = thread fs word
 
-replacements :: Text -> [(Text, Text)]
-replacements text = [ (orig, mod) | (orig, Just mod) <- zip words transformed ] where
+replacements :: [Transformation] -> Text -> [(Text, Text)]
+replacements fs text = [ (orig, mod) | (orig, Just mod) <- zip words transformed ] where
   words = T.words text
-  transformed = fmap transform words
+  transformed = fmap (transform fs) words
 
-transformText :: Text -> Text
-transformText text =
-  foldr (\(orig, mod) acc -> replace orig mod acc) text $ replacements text
+transformText :: [Transformation] -> Text -> Text
+transformText fs text =
+  foldr (\(orig, mod) acc -> replace orig mod acc) text $ replacements fs text
 
-interactiveLoop :: IO ()
-interactiveLoop =
-  T.IO.getLine >>= T.IO.putStrLn . ("-> " <>) . transformText >> interactiveLoop
+interactiveLoop :: Options -> IO ()
+interactiveLoop opts =
+  T.IO.getLine >>=
+    T.IO.putStrLn . ("-> " <>) . transformText (fromFeatures opts.featuresOpt) >>
+      interactiveLoop opts
+
+-- TODO: handle conflicts and supersets
+fromFeatures :: [Feature] -> [Transformation]
+fromFeatures =
+  fmap fromFeature where
+    fromFeature :: Feature -> Text -> Text
+    fromFeature Epenthesis = ap fromMaybe applyEpenthesis
+    fromFeature SpecialGemination = ap fromMaybe applySpecialGemination
+    fromFeature CommonGemination = ap fromMaybe commonGeminated
 
 main = do
   options <- execParser options
-  doMain options.inputOpt where
-    doMain Interactive = T.IO.putStrLn "Enter a line of text: " >> interactiveLoop
-    doMain StdIn = pure () -- TODO: do something :D
-    doMain (File filePath) = T.IO.readFile filePath >>= T.IO.putStr . transformText
+  doMain options where
+    doMain :: Options -> IO ()
+    doMain options@Options {inputOpt = Interactive} =
+      T.IO.putStrLn "Enter a line of text: " >>
+        interactiveLoop options
+    doMain Options {inputOpt = StdIn} = pure () -- TODO: do something :D
+    doMain Options {inputOpt = (File filePath), featuresOpt} =
+      T.IO.readFile filePath >>= T.IO.putStr . transformText (fromFeatures featuresOpt)
