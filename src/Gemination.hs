@@ -4,6 +4,7 @@ module Gemination
   (commonGeminated) where
 
 import Control.Applicative
+import Data.Maybe
 import Data.Text hiding (take, drop, elem, replicate, length, foldr)
 import qualified Data.Text as T
 
@@ -97,3 +98,21 @@ parseLongVowel x
   | otherwise = Nothing where
   bothSame x = T.take 1 x == T.drop 1 x
   candidate = T.take 2 x
+
+-- TODO: Very similar code to 'applyEpenthesis', if there's more of these,
+-- make a common function for this type of accumulating function
+applySpecialGemination :: Text -> Maybe Text
+applySpecialGemination word
+  | geminated == word = Nothing
+  | otherwise = Just geminated where
+  geminated = go (T.take 1 word) $ T.drop 1 word -- Initial consonant cannot be geminated
+  go :: Text -> Text -> Text
+  go acc "" = acc
+  go acc text =
+    go (append acc $ fst $ nextAcc text) (T.drop (snd $ nextAcc text) text)
+  nextAcc text =
+    maybe
+      ((,) (T.take 1 text) 1)
+      (\lo -> (,) (doSpecialGemination $ toText lo) 3)
+      (parseLongOpen $ T.take 3 text)
+  doSpecialGemination text = T.replicate 2 (T.take 1 text) `append` T.drop 1 text
