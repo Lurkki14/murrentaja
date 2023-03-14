@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Gemination 
-  (applyCommonGemination, parseCommonGeminable) where
+  (commonGeminated) where
 
 import Control.Applicative
 import Data.Text hiding (take, drop, elem, replicate, length, foldr)
