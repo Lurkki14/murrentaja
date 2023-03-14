@@ -110,9 +110,12 @@ applySpecialGemination word
   go acc "" = acc
   go acc text =
     go (append acc $ fst $ nextAcc text) (T.drop (snd $ nextAcc text) text)
-  nextAcc text =
-    maybe
-      ((,) (T.take 1 text) 1)
-      (\lo -> (,) (doSpecialGemination $ toText lo) 3)
-      (parseLongOpen $ T.take 3 text)
+  nextAcc text
+    | isDoubledChar $ T.take 2 text = (,) (T.take 2 text) 2 -- Don't geminate when already geminated
+    | otherwise =
+        maybe
+          ((,) (T.take 1 text) 1)
+          (\lo -> (,) (doSpecialGemination $ toText lo) 3)
+          (parseLongOpen $ T.take 3 text)
   doSpecialGemination text = T.replicate 2 (T.take 1 text) `append` T.drop 1 text
+  isDoubledChar text = T.take 1 text == T.drop 1 text
