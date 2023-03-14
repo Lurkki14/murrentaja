@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Epenthesis where
+module Epenthesis
+  (applyEpenthesis) where
 
 import Data.Char
 import Data.Maybe
