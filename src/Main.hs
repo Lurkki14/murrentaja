@@ -68,11 +68,16 @@ features = option parseFeatures (
   long "features" <>
   short 'F' ) where
     parseFeatures :: ReadM [Feature]
-    parseFeatures = eitherReader readEither
-
-readFeatures :: String -> [Maybe Feature]
-readFeatures string = readMaybe <$> words string
-
+    parseFeatures = eitherReader readFeaturesE
+    readFeaturesE :: String -> Either String [Feature]
+    readFeaturesE string =
+      case readFeatures string of (Just xs) -> Right xs
+                                  Nothing -> Left "No such feature name"
+    -- Parse a comma separated list of Features
+    readFeatures :: String -> Maybe [Feature]
+    readFeatures string = mapM readMaybe strings where
+      strings :: [String]
+      strings = fmap unpack $ splitOn "," $ pack string
 
 optionsP :: Parser Options
 optionsP = Options <$> input <*> features
