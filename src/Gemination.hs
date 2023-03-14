@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Gemination 
-  (commonGeminated) where
+  (applySpecialGemination, commonGeminated) where
 
 import Control.Applicative
 import Data.Maybe
