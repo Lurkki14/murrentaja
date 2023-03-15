@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Epenthesis
-  (applyEpenthesis) where
+  (applyEpenthesis, applyPohjanmaaEpenthesis) where
 
 import Data.Char
 import Data.Maybe
@@ -24,8 +24,10 @@ mkEpenthesisTrigger triggers x
 vowels = [ 'a', 'e', 'i', 'u', 'o', 'y', 'ä', 'ö' ] :: [Char]
 
 epenthesisTriggers = [ "lp", "lk", "lm", "lv", "nh" ] :: [Text]
+pohjanmaaEpenthesisTriggers = epenthesisTriggers ++ [ "hr", "hm", "hl", "hj", "hn", "hv" ]
 
 applyEpenthesis = epenthesisWithTriggers epenthesisTriggers
+applyPohjanmaaEpenthesis = epenthesisWithTriggers pohjanmaaEpenthesisTriggers
 
 epenthesisWithTriggers :: [Text] -> Text -> Maybe Text
 epenthesisWithTriggers triggers word
