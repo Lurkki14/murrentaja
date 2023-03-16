@@ -29,7 +29,8 @@ data Input =
 data Feature =
   CommonGemination |
   SpecialGemination |
-  Epenthesis deriving (Read, Show)
+  Epenthesis |
+  PohjanmaaEpenthesis deriving (Eq, Ord, Read, Show)
 
 data Options = Options {
   inputOpt :: Input,
