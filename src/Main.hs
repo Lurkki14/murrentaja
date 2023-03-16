@@ -6,9 +6,12 @@
 import Control.Applicative
 import Control.Monad
 import Data.Char as T
+import Data.Map.Strict hiding (foldr, filter, lookup, singleton)
+import qualified Data.Map.Strict as M
 import Data.Maybe
+import qualified Data.Set as Set
 import Data.Text.Encoding
-import Data.Text hiding (foldr, zip, words)
+import Data.Text hiding (head, foldr, zip, words)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import Options.Applicative
@@ -36,7 +39,10 @@ data Options = Options {
 data FeatureInfo = FeatureInfo {
   feature :: Feature,
   function :: Text -> Maybe Text,
+  -- Throw error if one of these appears in the same list
+  -- Or: valid list can't be created if in same list
   conflicts :: [Feature],
+  -- Any instance of these is removed if in the same list
   supersetOf :: [Feature]
 }
 
@@ -50,6 +56,17 @@ data PhonologicalFeatures = PhonologicalFeatures {
   specialGemination :: Bool,
   epenthesis :: Bool -- https://kaino.kotus.fi/visk/sisallys.php?p=33
 }
+
+featureInfo :: [FeatureInfo]
+featureInfo =
+  [
+    FeatureInfo CommonGemination commonGeminated [] [],
+    FeatureInfo Epenthesis applyEpenthesis [] [],
+    FeatureInfo SpecialGemination applySpecialGemination [] [CommonGemination],
+    FeatureInfo PohjanmaaEpenthesis applyPohjanmaaEpenthesis [] [Epenthesis]
+  ]
+
+featureInfoMap = fromList $ fmap (\info -> (,) info.feature info) featureInfo
 
 input :: Parser Input
 input = file <|> stdIn <|> interactive where
@@ -115,14 +132,17 @@ interactiveLoop opts =
     T.IO.putStrLn . ("-> " <>) . transformText (fromFeatures opts.featuresOpt) >>
       interactiveLoop opts
 
--- TODO: handle conflicts and supersets
 fromFeatures :: [Feature] -> [Transformation]
-fromFeatures =
-  fmap fromFeature where
-    fromFeature :: Feature -> Text -> Text
-    fromFeature Epenthesis = ap fromMaybe applyEpenthesis
-    fromFeature SpecialGemination = ap fromMaybe applySpecialGemination
-    fromFeature CommonGemination = ap fromMaybe commonGeminated
+fromFeatures features =
+  (\(k, featureInfo) -> ap fromMaybe featureInfo.function) <$>
+    M.toList withoutSubsets where
+      mapWithFeatures = M.restrictKeys featureInfoMap $ Set.fromList features
+      withoutSubsets =
+        foldr (\feature acc -> removeSubsets acc feature) mapWithFeatures features
+      removeSubsets :: Map Feature FeatureInfo -> Feature -> Map Feature FeatureInfo
+      removeSubsets map feature = fromMaybe map $ M.lookup feature map >>= \v ->
+        pure $ foldr delete map v.supersetOf
+      -- TODO: remove conflicting features
 
 main = do
   options <- execParser options
