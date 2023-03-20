@@ -73,18 +73,24 @@ input :: Parser Input
 input = file <|> stdIn <|> interactive where
   file = File <$> strOption (
     long "file" <>
-    short 'f' )
+    short 'f' <>
+    help "Read text from FILE" <>
+    metavar "FILE")
   stdIn = flag' StdIn (
     long "stdin" <>
-    short 's' )
+    short 's' <>
+    help "Read text from stdin")
   interactive = flag' Interactive (
     long "interactive" <>
-    short 'i' )
+    short 'i' <>
+    help "Read text from an interactive prompt")
 
 features :: Parser [Feature]
 features = option parseFeatures (
   long "features" <>
-  short 'F' ) where
+  short 'F' <>
+  metavar "FEATURES" <>
+  help "Comma separated list of features") where
     parseFeatures :: ReadM [Feature]
     parseFeatures = eitherReader readFeaturesE
     readFeaturesE :: String -> Either String [Feature]
@@ -144,6 +150,7 @@ fromFeatures features =
       removeSubsets map feature = fromMaybe map $ M.lookup feature map >>= \v ->
         pure $ foldr delete map v.supersetOf
       -- TODO: remove conflicting features
+
 
 main = do
   options <- execParser options
