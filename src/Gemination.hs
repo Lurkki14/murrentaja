@@ -8,6 +8,8 @@ import Data.Maybe
 import Data.Text hiding (take, drop, elem, replicate, length, foldr)
 import qualified Data.Text as T
 
+import Utils
+
 -- Being able to parse CV | V at the beginning of a word does not mean short syllable, hence the name
 data MaybeShort = CV T.Text | V T.Text deriving (Show) 
 -- this kind of syllable is applicable for common gemination
@@ -99,23 +101,20 @@ parseLongVowel x
   bothSame x = T.take 1 x == T.drop 1 x
   candidate = T.take 2 x
 
--- TODO: Very similar code to 'applyEpenthesis', if there's more of these,
--- make a common function for this type of accumulating function
+specialGeminationAcc :: Text -> TextAcc
+specialGeminationAcc text
+  | isDoubledChar $ T.take 2 text = TextAcc 2 $ T.take 2 text
+  | otherwise =
+      maybe
+        (TextAcc 1 $ T.take 1 text)
+        (\lo -> TextAcc 3 (doSpecialGemination $ toText lo))
+        (parseLongOpen $ T.take 3 text) where
+      -- Don't geminate when already geminated
+      doSpecialGemination text = T.replicate 2 (T.take 1 text) `append` T.drop 1 text
+      isDoubledChar text = T.take 1 text == T.drop 1 text
+
 applySpecialGemination :: Text -> Maybe Text
-applySpecialGemination word
-  | geminated == word = Nothing
-  | otherwise = Just geminated where
-  geminated = go (T.take 1 word) $ T.drop 1 word -- Initial consonant cannot be geminated
-  go :: Text -> Text -> Text
-  go acc "" = acc
-  go acc text =
-    go (append acc $ fst $ nextAcc text) (T.drop (snd $ nextAcc text) text)
-  nextAcc text
-    | isDoubledChar $ T.take 2 text = (,) (T.take 2 text) 2 -- Don't geminate when already geminated
-    | otherwise =
-        maybe
-          ((,) (T.take 1 text) 1)
-          (\lo -> (,) (doSpecialGemination $ toText lo) 3)
-          (parseLongOpen $ T.take 3 text)
-  doSpecialGemination text = T.replicate 2 (T.take 1 text) `append` T.drop 1 text
-  isDoubledChar text = T.take 1 text == T.drop 1 text
+applySpecialGemination word =
+  -- Initial consonant cannot be geminated (preserve first character)
+  fmap (append $ T.take 1 word) $
+    modifyAccumulating specialGeminationAcc $ T.drop 1 word
