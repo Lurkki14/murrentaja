@@ -19,6 +19,7 @@ import Text.Read
 
 import Gemination
 import Epenthesis
+import Diphthongs
 
 -- Program options
 data Input =
@@ -30,7 +31,8 @@ data Feature =
   CommonGemination |
   SpecialGemination |
   Epenthesis |
-  PohjanmaaEpenthesis deriving (Eq, Ord, Read, Show)
+  PohjanmaaEpenthesis |
+  SavoReduction deriving (Eq, Ord, Read, Show)
 
 data Options = Options {
   inputOpt :: Input,
@@ -58,13 +60,17 @@ data PhonologicalFeatures = PhonologicalFeatures {
   epenthesis :: Bool -- https://kaino.kotus.fi/visk/sisallys.php?p=33
 }
 
+instance Pretty FeatureInfo where
+  pretty f_info = P.text $ show f_info.feature
+
 featureInfo :: [FeatureInfo]
 featureInfo =
   [
     FeatureInfo CommonGemination commonGeminated [] [],
     FeatureInfo Epenthesis applyEpenthesis [] [],
     FeatureInfo SpecialGemination applySpecialGemination [] [CommonGemination],
-    FeatureInfo PohjanmaaEpenthesis applyPohjanmaaEpenthesis [] [Epenthesis]
+    FeatureInfo PohjanmaaEpenthesis applyPohjanmaaEpenthesis [] [Epenthesis],
+    FeatureInfo SavoReduction applySavoReduction [] []
   ]
 
 featureInfoMap = fromList $ fmap (\info -> (,) info.feature info) featureInfo
