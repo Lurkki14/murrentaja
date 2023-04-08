@@ -6,15 +6,18 @@
 import Control.Applicative
 import Control.Monad
 import Data.Char as T
+import Data.List hiding (delete)
 import Data.Map.Strict hiding (foldr, filter, lookup, singleton)
 import qualified Data.Map.Strict as M
 import Data.Maybe
 import qualified Data.Set as Set
 import Data.Text.Encoding
-import Data.Text hiding (head, foldr, zip, words)
+import Data.Text hiding (head, foldr, foldr1, zip, words)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import Options.Applicative
+import Options.Applicative.Help.Pretty hiding (empty, group)
+import qualified Options.Applicative.Help.Pretty as P
 import Text.Read
 
 import Gemination
@@ -60,8 +63,23 @@ data PhonologicalFeatures = PhonologicalFeatures {
   epenthesis :: Bool -- https://kaino.kotus.fi/visk/sisallys.php?p=33
 }
 
+showCommaSep :: Show a => [a] -> String
+showCommaSep [] = ""
+showCommaSep [x] = show x
+showCommaSep (x:xs) = show x <> ", " <> showCommaSep xs
+
 instance Pretty FeatureInfo where
-  pretty f_info = P.text $ show f_info.feature
+  pretty FeatureInfo {
+      feature,
+      conflicts,
+      supersetOf
+    } = P.group $ nest 2 (featureDoc .$. supersetDoc supersetOf) where
+      featureDoc = text $ show feature
+      supersetDoc [] = P.empty
+      supersetDoc x = text $ "Implies: " <> showCommaSep supersetOf
+  prettyList [] = P.empty
+  -- Print each FeatureInfo on its own line
+  prettyList f_infos = foldr1 (<$$>) $ fmap pretty f_infos
 
 featureInfo :: [FeatureInfo]
 featureInfo =
