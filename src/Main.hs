@@ -35,7 +35,8 @@ data Feature =
   SpecialGemination |
   Epenthesis |
   PohjanmaaEpenthesis |
-  SavoReduction deriving (Eq, Ord, Read, Show)
+  SavoReduction |
+  WesternReduction deriving (Eq, Ord, Read, Show)
 
 data Options = Options {
   inputOpt :: Input,
@@ -88,7 +89,8 @@ featureInfo =
     FeatureInfo Epenthesis applyEpenthesis [] [],
     FeatureInfo SpecialGemination applySpecialGemination [] [CommonGemination],
     FeatureInfo PohjanmaaEpenthesis applyPohjanmaaEpenthesis [] [Epenthesis],
-    FeatureInfo SavoReduction applySavoReduction [] []
+    FeatureInfo SavoReduction applySavoReduction [] [],
+    FeatureInfo WesternReduction applyWesternReduction [] []
   ]
 
 featureInfoMap = fromList $ fmap (\info -> (,) info.feature info) featureInfo
