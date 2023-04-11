@@ -116,7 +116,11 @@ features = option parseFeatures (
   long "features" <>
   short 'F' <>
   metavar "FEATURES" <>
-  help "Comma separated list of features") where
+  --helpDoc fhelp) where
+  helpDoc
+    (Just $ "Comma separated list of features, available ones:" <$$>
+    prettyList featureInfo)) where
+    fhelp = Just $ nest 2 $ text "hello" .$. text "world"
     parseFeatures :: ReadM [Feature]
     parseFeatures = eitherReader readFeaturesE
     readFeaturesE :: String -> Either String [Feature]
