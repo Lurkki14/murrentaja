@@ -22,7 +22,7 @@ Interactive mode and reading from a file are currently available. More informati
 
 ```
 $ ./Main -i -F SavoReduction,SpecialGemination,Epenthesis
-poika ajaa salmessa veneellä
+poika ajaa salmeen veneellä
 -> poeka ajjaa salammeen venneellä
 ```
 
