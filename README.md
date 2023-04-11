@@ -1,18 +1,34 @@
 ## About
 
-This program applies common gemination (in Finnish *yleisgeminaatio*) to a Finnish word (more operating modes to come).
+This program applies dialectal features to standard Finnish text.
 
-More about Finnish common gemination (in Finnish):
+Currently available features are listed in the help text (`./Main -h`).
 
-https://kaino.kotus.fi/visk/sisallys.php?p=29
 
 ## Compiling
 
 
-For compiling you need the `text` Haskell package.
+For compiling you need the `text` and `optparse-applicative` Haskell packages.
 
 You can also use `nix-shell shell.nix` to enter the needed compilation environment.
 
+Then compiling and running is `cd src; ghc Main.hs && ./Main`
+
 ## Usage
 
-Currently just simple interactive mode.
+Interactive mode and reading from a file are currently available. More information in the help text.
+
+## Examples
+
+```
+$ ./Main -i -F SavoReduction,SpecialGemination,Epenthesis
+poika ajaa salmessa veneellä
+-> poeka ajjaa salammeen venneellä
+```
+
+```
+$ ./Main -i -F WesternReduction,CommonGemination,PohjanmaaEpenthesis
+Enter a line of text:
+työmies ajaa kotiin kahville
+-> tyämiäs ajjaa kottiin kahaville
+```
