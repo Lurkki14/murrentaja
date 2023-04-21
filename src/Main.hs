@@ -189,6 +189,7 @@ main = do
     doMain options@Options {inputOpt = Interactive} =
       T.IO.putStrLn "Enter a line of text: " >>
         interactiveLoop options
-    doMain Options {inputOpt = StdIn} = pure () -- TODO: do something :D
+    doMain Options {inputOpt = StdIn, featuresOpt} =
+      T.IO.getContents >>= T.IO.putStr . transformText (fromFeatures featuresOpt)
     doMain Options {inputOpt = (File filePath), featuresOpt} =
       T.IO.readFile filePath >>= T.IO.putStr . transformText (fromFeatures featuresOpt)
