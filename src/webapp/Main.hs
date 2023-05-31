@@ -1,11 +1,15 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
 import Control.Applicative
+import Data.Maybe
 import Data.Text
 import Yesod
+
+import Gemination
 
 data Input = Input {
   text :: Text
@@ -15,7 +19,7 @@ data Input = Input {
 data App = App
 
 mkYesod "App" [parseRoutes|
-  / HomeR GET
+  / HomeR GET POST
 |]
 
 instance Yesod App
@@ -24,15 +28,28 @@ instance RenderMessage App FormMessage where
   renderMessage _ _ = defaultFormMessage
 
 murrentajaForm = renderDivs form where
-  form :: AForm Handler Text
-  form = areq textField "Input" Nothing
+  form :: AForm Handler Textarea
+  form = areq textareaField "Input" Nothing
 
 getHomeR :: Handler Html
 getHomeR = do
-  (widget, enctype) <- generateFormPost murrentajaForm
+  ((res, widget), enctype) <- runFormPost murrentajaForm
   defaultLayout $ do
-    widget
-    [whamlet| <button> Submit |]
+    [whamlet|
+      <p>
+      <form method=post action=@{HomeR} enctype=#{enctype}>
+        ^{widget}
+        <button> Submit
+    |]
+    [whamlet|
+      <p>#{showResult res}
+    |]
+    where
+    showResult (FormSuccess textArea) =
+      fromMaybe "Nil" $ applySpecialGemination $ unTextarea textArea
+    showResult x = pack $ show x
+
+postHomeR = getHomeR
 
 main = warp 3001 App
   
