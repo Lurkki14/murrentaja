@@ -101,6 +101,8 @@ parseLongVowel x
   bothSame x = T.take 1 x == T.drop 1 x
   candidate = T.take 2 x
 
+-- TODO: In environments where a weak grade is expected, special gemination doesn't apply.
+-- eg. "hihnoissa" shouldn't become "*hihnnoissa" like with the current code
 specialGeminationAcc :: Text -> TextAcc
 specialGeminationAcc text
   | isDoubledChar $ T.take 2 text = TextAcc 2 $ T.take 2 text
