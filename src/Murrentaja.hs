@@ -50,8 +50,6 @@ featureInfo =
     FeatureInfo SWDLenition applySWDLention [] []
   ]
 
-featureInfoMap = fromList $ fmap (\info -> (,) info.feature info) featureInfo
-
 thread :: Foldable t => t (a -> a) -> a -> a
 thread = foldr (.) id
 
@@ -83,4 +81,5 @@ fromFeatures features =
       removeSubsets :: Map Feature FeatureInfo -> Feature -> Map Feature FeatureInfo
       removeSubsets map feature = fromMaybe map $ M.lookup feature map >>= \v ->
         pure $ foldr delete map v.supersetOf
+      featureInfoMap = fromList $ fmap (\info -> (,) info.feature info) featureInfo
       -- TODO: remove conflicting features
