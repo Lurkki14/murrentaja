@@ -4,8 +4,8 @@ cabal-version: 2.0
 build-type: Simple
 
 library murrentaja-internal
-  exposed-modules: Gemination
-  other-modules: Utils
+  exposed-modules: Murrentaja
+  other-modules: Diphthongs Epenthesis Gemination Lenition Utils
   hs-source-dirs: src
   build-depends: base >= 4.16,
                  containers >= 0.5,
