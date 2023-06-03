@@ -15,8 +15,6 @@ library murrentaja-internal
 executable murrentaja-webserver
   build-depends: murrentaja-internal,
                  base >= 4.16,
-                 containers >= 0.5,
-                 optparse-applicative >= 0.17,
                  text >= 1.2.5,
                  yesod >= 1.6
   main-is: Main.hs
