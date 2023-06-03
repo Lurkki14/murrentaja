@@ -9,7 +9,7 @@ import Data.Maybe
 import Data.Text
 import Yesod
 
-import Gemination
+import Murrentaja
 
 data Input = Input {
   text :: Text
@@ -46,7 +46,7 @@ getHomeR = do
     |]
     where
     showResult (FormSuccess textArea) =
-      fromMaybe "Nil" $ applySpecialGemination $ unTextarea textArea
+      transformText (fromFeatures [SpecialGemination]) $ unTextarea textArea
     showResult x = pack $ show x
 
 postHomeR = getHomeR
