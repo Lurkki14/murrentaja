@@ -22,7 +22,7 @@ data Feature =
   SpecialGemination |
   Epenthesis |
   PohjanmaaEpenthesis |
-  SavoReduction |
+  SavoDiphthongNarrowing |
   WesternReduction |
   SWDLenition deriving (Eq, Ord, Read, Show)
 
@@ -45,7 +45,7 @@ featureInfo =
     FeatureInfo Epenthesis applyEpenthesis [] [],
     FeatureInfo SpecialGemination applySpecialGemination [] [CommonGemination],
     FeatureInfo PohjanmaaEpenthesis applyPohjanmaaEpenthesis [] [Epenthesis],
-    FeatureInfo SavoReduction applySavoReduction [] [],
+    FeatureInfo SavoDiphthongNarrowing applySavoDiphthongNarrowing [] [],
     FeatureInfo WesternReduction applyWesternReduction [] [],
     FeatureInfo SWDLenition applySWDLention [] []
   ]
