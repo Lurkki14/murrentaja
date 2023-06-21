@@ -37,7 +37,8 @@ elemFromList list x
   | otherwise = Nothing
 
 applySavoDiphthongNarrowing = modifyAccumulating diphthongNarrowingAcc
-applyWesternDiphthongWidening = modifyAccumulating westernDiphthongWideningAcc
+applyWesternDiphthongWidening word =
+  modifyAccumulating (westernDiphthongWideningAcc $ vowelHarmony word) word
 
 diphthongNarrowingAcc :: Text -> TextAcc
 diphthongNarrowingAcc text =
@@ -47,13 +48,12 @@ diphthongNarrowingAcc text =
     (elemFromList savoNarrowableDiphthongs $ T.take 2 text) where
   doNarrowing text = T.take 1 text <> "e"
 
-westernDiphthongWideningAcc :: Text -> TextAcc
-westernDiphthongWideningAcc text =
+westernDiphthongWideningAcc :: VowelHarmony -> Text -> TextAcc
+westernDiphthongWideningAcc harmony text =
   maybe
     (TextAcc 1 $ T.take 1 text)
     (TextAcc 2 . doWidening harmony)
     (elemFromList westernWideningDiphthongs $ T.take 2 text) where
-  harmony = vowelHarmony text
   doWidening :: VowelHarmony -> Text -> Text
   doWidening FrontHarmony "ie" = "iä"
   doWidening _ "uo" = "ua"
