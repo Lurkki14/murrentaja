@@ -56,6 +56,7 @@ westernDiphthongWideningAcc harmony text =
     (elemFromList westernWideningDiphthongs $ T.take 2 text) where
   doWidening :: VowelHarmony -> Text -> Text
   doWidening FrontHarmony "ie" = "iä"
+  doWidening BackHarmony "ie" = "ia"
   doWidening _ "uo" = "ua"
   doWidening _ "yö" = "yä"
   doWidening _ x = x
