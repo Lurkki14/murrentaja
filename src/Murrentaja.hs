@@ -28,6 +28,12 @@ data Feature =
 
 type Transformation = (Text -> Text)
 
+-- Geographical presets
+data Preset =
+  Kuopio |
+  Tampere |
+  Oulu deriving (Read, Show)
+
 data FeatureInfo = FeatureInfo {
   feature :: Feature,
   function :: Text -> Maybe Text,
@@ -37,6 +43,12 @@ data FeatureInfo = FeatureInfo {
   -- Any instance of these is removed if in the same list
   supersetOf :: [Feature]
 }
+
+fromPreset :: Preset -> [Feature]
+fromPreset Kuopio = [SpecialGemination, Epenthesis, SavoDiphthongNarrowing]
+fromPreset Tampere = [WesternDiphthongWidening, SWDLenition]
+-- Western uo -> ua is common around Oulu but not Oulu itself?
+fromPreset Oulu = [CommonGemination, PohjanmaaEpenthesis]
 
 featureInfo :: [FeatureInfo]
 featureInfo =
