@@ -2,7 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Diphthongs
-  (applySavoDiphthongNarrowing, applyWesternReduction) where
+  (applySavoDiphthongNarrowing, applyWesternDiphthongWidening) where
 
 import Data.Char
 import Data.Maybe
@@ -20,7 +20,8 @@ data VowelHarmony =
 -- element than in standard Finnish
 savoNarrowableDiphthongs = [ "oi", "öi", "ai", "äi" ] :: [Text]
 -- työmies -> tyämiäs
-westernReducibleDiphthongs = [ "ie", "uo", "yö" ] :: [Text]
+-- Opposite of narrowing, meaning tongue movement is greater
+westernWideningDiphthongs = [ "ie", "uo", "yö" ] :: [Text]
 
 backVowels = [ 'a', 'o', 'u' ] :: [Char]
 
@@ -36,7 +37,7 @@ elemFromList list x
   | otherwise = Nothing
 
 applySavoDiphthongNarrowing = modifyAccumulating diphthongNarrowingAcc
-applyWesternReduction = modifyAccumulating westernDiphthongReductionAcc
+applyWesternDiphthongWidening = modifyAccumulating westernDiphthongWideningAcc
 
 diphthongNarrowingAcc :: Text -> TextAcc
 diphthongNarrowingAcc text =
@@ -46,15 +47,15 @@ diphthongNarrowingAcc text =
     (elemFromList savoNarrowableDiphthongs $ T.take 2 text) where
   doNarrowing text = T.take 1 text <> "e"
 
-westernDiphthongReductionAcc :: Text -> TextAcc
-westernDiphthongReductionAcc text =
+westernDiphthongWideningAcc :: Text -> TextAcc
+westernDiphthongWideningAcc text =
   maybe
     (TextAcc 1 $ T.take 1 text)
-    (TextAcc 2 . doReduction harmony)
-    (elemFromList westernReducibleDiphthongs $ T.take 2 text) where
+    (TextAcc 2 . doWidening harmony)
+    (elemFromList westernWideningDiphthongs $ T.take 2 text) where
   harmony = vowelHarmony text
-  doReduction :: VowelHarmony -> Text -> Text
-  doReduction FrontHarmony "ie" = "iä"
-  doReduction _ "uo" = "ua"
-  doReduction _ "yö" = "yä"
-  doReduction _ x = x
+  doWidening :: VowelHarmony -> Text -> Text
+  doWidening FrontHarmony "ie" = "iä"
+  doWidening _ "uo" = "ua"
+  doWidening _ "yö" = "yä"
+  doWidening _ x = x
