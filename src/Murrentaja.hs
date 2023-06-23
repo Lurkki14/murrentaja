@@ -32,7 +32,7 @@ type Transformation = (Text -> Text)
 data Preset =
   Kuopio |
   Tampere |
-  Oulu deriving (Read, Show)
+  Oulu deriving (Enum, Read, Show)
 
 data FeatureInfo = FeatureInfo {
   feature :: Feature,
