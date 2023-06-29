@@ -8,6 +8,7 @@ import Data.Char
 import Data.Maybe
 import Data.Text hiding (any, elem, drop)
 import qualified Data.Text as T
+import Prelude hiding (lookup)
 
 import Utils
 
@@ -45,8 +46,9 @@ diphthongNarrowingAcc text =
   maybe
     (TextAcc 1 $ T.take 1 text)
     (TextAcc 2 . doNarrowing)
-    (elemFromList savoNarrowableDiphthongs $ T.take 2 text) where
-  doNarrowing text = T.take 1 text <> "e"
+    (lookupTextNorm savoNarrowableDiphthongs $ T.take 2 text) where
+  -- 'e' gets the case of the second element
+  doNarrowing text = T.take 1 text <> applyCase (toLetterCase $ takeEnd 1 text) "e"
 
 westernDiphthongWideningAcc :: VowelHarmony -> Text -> TextAcc
 westernDiphthongWideningAcc harmony text =
