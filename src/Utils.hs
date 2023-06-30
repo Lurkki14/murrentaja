@@ -50,6 +50,7 @@ applyCase LowerCase x = toLower x
 applyCase UpperCase x = toUpper x
 
 -- Is FlexibleContexts really needed for this?
+-- Case insensitive search of an element from a Searchable
 lookupTextNorm :: Searchable b Text => b Text -> Text -> Maybe Text
 lookupTextNorm xs element = lookup xs (toCaseFold element) >> Just element
 
