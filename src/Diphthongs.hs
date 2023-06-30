@@ -54,11 +54,12 @@ westernDiphthongWideningAcc :: VowelHarmony -> Text -> TextAcc
 westernDiphthongWideningAcc harmony text =
   maybe
     (TextAcc 1 $ T.take 1 text)
-    (TextAcc 2 . doWidening harmony)
-    (elemFromList westernWideningDiphthongs $ T.take 2 text) where
-  doWidening :: VowelHarmony -> Text -> Text
-  doWidening FrontHarmony "ie" = "iä"
-  doWidening BackHarmony "ie" = "ia"
-  doWidening _ "uo" = "ua"
-  doWidening _ "yö" = "yä"
-  doWidening _ x = x
+    -- Case of the first letter is used
+    (TextAcc 2 . doWidening harmony (toLetterCase $ T.take 1 text))
+    (lookupTextNormHaystack westernWideningDiphthongs $ T.take 2 text) where
+  doWidening :: VowelHarmony -> LetterCase -> Text -> Text
+  doWidening FrontHarmony c "ie" = applyCase c "iä"
+  doWidening BackHarmony c "ie" = applyCase c "ia"
+  doWidening _ c "uo" = applyCase c "ua"
+  doWidening _ c "yö" = applyCase c "yä"
+  doWidening _ _ x = x
