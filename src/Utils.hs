@@ -54,6 +54,10 @@ applyCase UpperCase x = toUpper x
 lookupTextNorm :: Searchable b Text => b Text -> Text -> Maybe Text
 lookupTextNorm xs element = lookup xs (toCaseFold element) >> Just element
 
+-- Same as above, but returns the value from the Searchable instead of 'element'
+lookupTextNormHaystack :: Searchable b Text => b Text -> Text -> Maybe Text
+lookupTextNormHaystack xs element = lookup xs $ toCaseFold element
+
 -- Captures the repeated pattern from all earlier modifying functions
 -- This function allows modifying words at the precision required for
 -- different transformations, and allows for the modified text to be of
