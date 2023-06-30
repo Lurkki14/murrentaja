@@ -19,3 +19,13 @@ executable murrentaja-webserver
                  yesod >= 1.6
   main-is: Main.hs
   hs-source-dirs: src/webapp
+
+test-suite tests
+  type: exitcode-stdio-1.0
+  main-is: Tests.hs
+  hs-source-dirs: src/tests
+  build-depends: murrentaja-internal,
+                 QuickCheck >= 2.12,
+                 text >= 1.2.5,
+                 quickcheck-instances >= 0.3.25,
+                 base >= 4.16
